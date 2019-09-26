@@ -27,4 +27,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: osc-to-artnet-amd64
+        args: osc-to-artnet-linux-amd64
