@@ -1,6 +1,6 @@
 # osc-to-artnet
 
-This project requests fader values of channels via Open Sound Control (OSC) from e.g. a [Behringer X32](https://www.behringer.com/Categories/Behringer/Mixers/Digital/X32/p/P0ASF) and transmits them via ArtNet DMX packets into a light network. Each channel controls a channel in the DMX universe, which enables to control DMX via e.g. the X32.
+This project requests fader values of channels via Open Sound Control (OSC) from e.g. a [Behringer X32](https://www.behringer.com/Categories/Behringer/Mixers/Digital/X32/p/P0ASF) and transmits them via ArtNet DMX packets into a light network. Each channel controls a channel in the DMX universe, which enables to control DMX via e.g. the X32. For the X32 this project uses the OSC message `/ch/%02d/mix/fader` to receive the fader value.
 
 ## Build
 
