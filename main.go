@@ -71,13 +71,14 @@ func (c *oscClient) close() {
 }
 
 type artnetController struct {
-	conn       *net.UDPConn
-	remoteAddr *net.UDPAddr
-	channels   [512]byte
-	universe   uint8
+	conn          *net.UDPConn
+	remoteAddr    *net.UDPAddr
+	channels      [512]byte
+	universe      uint8
+	channelOffset int
 }
 
-func newArtnetController(addr string, universe uint8) (*artnetController, error) {
+func newArtnetController(addr string, universe uint8, channelOffset int) (*artnetController, error) {
 	c := &artnetController{}
 
 	remoteAddr, err := net.ResolveUDPAddr("udp", addr)
@@ -91,12 +92,13 @@ func newArtnetController(addr string, universe uint8) (*artnetController, error)
 
 	c.conn = conn
 	c.universe = universe
+	c.channelOffset = channelOffset
 
 	return c, nil
 }
 
 func (c *artnetController) setChannel(ch int, value byte) {
-	c.channels[ch] = value
+	c.channels[ch+c.channelOffset] = value
 }
 
 func (c *artnetController) sendChannels() error {
@@ -125,11 +127,16 @@ func (c *artnetController) close() {
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		log.Fatal("Usage: osc-to-artnet OSC_ADDR ARTNET_ADDR ARTNET_UNIVERSE\nExample: osc-to-artnet 192.168.1.65:10023 2.0.0.1:6454 0")
+	if len(os.Args) < 4 {
+		log.Fatal("Usage: osc-to-artnet OSC_ADDR ARTNET_ADDR ARTNET_UNIVERSE ARTNET_CHANNEL_OFFSET\nExample: osc-to-artnet 192.168.1.65:10023 2.0.0.1:6454 0 0")
 	}
 
 	universe, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	channelOffset, err := strconv.Atoi(os.Args[3])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,7 +150,7 @@ func main() {
 	}
 	defer client.close()
 
-	controller, err := newArtnetController(os.Args[1], uint8(universe))
+	controller, err := newArtnetController(os.Args[1], uint8(universe), channelOffset)
 	if err != nil {
 		log.Fatal(err)
 	}
