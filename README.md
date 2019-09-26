@@ -5,8 +5,11 @@ This project requests fader values of channels via Open Sound Control (OSC) from
 ## Build
 
 ```bash
+# with Go 1.12
 go build
 ```
+
+See releases: https://github.com/NIPE-SYSTEMS/osc-to-artnet/releases
 
 ## Usage
 
