@@ -1,0 +1,30 @@
+name: Releases
+on:
+  release:
+    types:
+    - published
+jobs:
+  build:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.12
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.12
+      id: go
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+    - name: Get dependencies
+      run: go get -v -t -d ./...
+    - name: Build
+      run: go build -v -o osc-to-artnet-linux-amd64 .
+      env:
+        GOOS: linux
+        GOARCH: amd64
+    - name: Publish binaries
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: osc-to-artnet-amd64
