@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -73,9 +74,10 @@ type artnetController struct {
 	conn       *net.UDPConn
 	remoteAddr *net.UDPAddr
 	channels   [512]byte
+	universe   uint8
 }
 
-func newArtnetController(addr string) (*artnetController, error) {
+func newArtnetController(addr string, universe uint8) (*artnetController, error) {
 	c := &artnetController{}
 
 	remoteAddr, err := net.ResolveUDPAddr("udp", addr)
@@ -88,6 +90,7 @@ func newArtnetController(addr string) (*artnetController, error) {
 	}
 
 	c.conn = conn
+	c.universe = universe
 
 	return c, nil
 }
@@ -122,16 +125,25 @@ func (c *artnetController) close() {
 }
 
 func main() {
+	if len(os.Args) < 3 {
+		log.Fatal("Usage: osc-to-artnet OSC_ADDR ARTNET_ADDR ARTNET_UNIVERSE\nExample: osc-to-artnet 192.168.1.65:10023 2.0.0.1:6454 0")
+	}
+
+	universe, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
-	client, err := newOscClient("192.168.1.65:10023")
+	client, err := newOscClient(os.Args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer client.close()
 
-	controller, err := newArtnetController("127.0.0.1:6454")
+	controller, err := newArtnetController(os.Args[1], uint8(universe))
 	if err != nil {
 		log.Fatal(err)
 	}
